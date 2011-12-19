@@ -150,7 +150,11 @@ VTCP_filter_http(int sock)
 		    sock, i, strerror(errno));
 	return (i);
 #elif defined(__linux)
-	int defer = 1;
+        /* TCP_DEFER_ACCEPT causes connections to be dropped when Varnish is used
+           together with https and some load balancers. In particular, connections
+           are randomly dropped when using the Amazon Elastic Load Balancing service
+           with Varnish. */
+        int defer = 0;
 	setsockopt(sock, SOL_TCP,TCP_DEFER_ACCEPT,(char *) &defer, sizeof(int));
 	return (0);
 #else
